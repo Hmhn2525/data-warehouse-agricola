@@ -1,0 +1,9 @@
+{
+  "synthetic": true,
+  "center": "DEMO-CC-001",
+  "period": "2026-01",
+  "illustrative_only": true,
+  "expected_units": 100,
+  "expected_cost_cents": 50000,
+  "expected_cost_per_unit": "5.00"
+}
