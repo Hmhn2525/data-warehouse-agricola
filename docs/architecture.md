@@ -29,4 +29,4 @@ Este repositorio contiene Markdown, un JSON sintético, un verificador Python de
 - Verificar consultas SQL, conexión BigQuery, linaje y definiciones de indicadores.
 - Validar consolidación, duplicados y recuperación sobre una copia con datos ficticios.
 - Acreditar modelo dimensional, latencia y resultados operativos antes de afirmarlos.
-- Confirmar responsabilidades históricas y decidir licencia.
+- Definición de licencia en su fase técnica propia.

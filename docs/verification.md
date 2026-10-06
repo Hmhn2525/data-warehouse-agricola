@@ -18,6 +18,6 @@ Las fuentes privadas se conservaron. Las ubicaciones y huellas revisadas se regi
 - Verificar consultas SQL, conexión BigQuery, linaje y definiciones de indicadores.
 - Validar consolidación, duplicados y recuperación sobre una copia con datos ficticios.
 - Acreditar modelo dimensional, latencia y resultados operativos antes de afirmarlos.
-- Confirmar responsabilidades históricas y decidir licencia.
+- Definición de licencia en su fase técnica propia.
 
 Un repositorio publicado y un ejemplo correcto no certifican operación productiva ni aceptación de usuarios.

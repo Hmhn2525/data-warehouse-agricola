@@ -6,7 +6,7 @@ Organizar registros de trabajo, catálogos y movimientos operativos para su cons
 
 ## Aportación documentada
 
-Este caso organiza la revisión de fuentes, pruebas sintéticas, arquitectura y límites de una solución asociada al portafolio. La revisión no acredita autoría exclusiva de todos sus componentes. Los detalles de responsabilidades históricas requieren evidencia adicional antes de ampliarlos.
+Este caso organiza la revisión de fuentes, pruebas sintéticas, arquitectura y límites de una solución asociada al portafolio. Se preservan las reservas sobre autoría exclusiva de todos sus componentes y componentes de terceros. Las responsabilidades personales en diseño del flujo de consolidación en Sheets, lógica de cruce de datos, modelo de indicadores y consultas analíticas para Looker Studio han sido confirmadas en el README.
 
 ## Decisiones observadas
 
@@ -28,4 +28,4 @@ Un informe accesible no certifica el linaje ni la actualización de todos sus da
 - Verificar consultas SQL, conexión BigQuery, linaje y definiciones de indicadores.
 - Validar consolidación, duplicados y recuperación sobre una copia con datos ficticios.
 - Acreditar modelo dimensional, latencia y resultados operativos antes de afirmarlos.
-- Confirmar responsabilidades históricas y decidir licencia.
+- Definición de licencia en su fase técnica propia.
