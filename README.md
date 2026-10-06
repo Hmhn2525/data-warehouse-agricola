@@ -21,8 +21,7 @@ Un proyecto Google Apps Script ligado a Google Sheets separa consolidación, aut
 
 ## Aportación personal
 
-<!-- APORTACION-PERSONAL: sustituir tras la confirmación agrupada de responsabilidades. -->
-Las responsabilidades personales específicas se publicarán después de confirmarlas. Este repositorio no atribuye autoría exclusiva del código operativo; presenta el caso, la arquitectura observada y un ejemplo reproducible.
+Diseñé el flujo de consolidación en Google Sheets tras consultar directamente las dinámicas y necesidades operativas con las áreas responsables. Estructuré la lógica de cruce de datos, el modelo de indicadores y las consultas analíticas orientadas al reporte en Looker Studio, asegurando la coherencia entre registros de campo y costos sin duplicar importes.
 
 ## Pregunta analítica del ejemplo
 
