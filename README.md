@@ -1,58 +1,96 @@
 # Data Warehouse Agrícola y Analítica de Rendimiento Operativo
 
-Consolidación en Sheets y presentación analítica.
+Consolidación de registros operativos en Google Sheets y ejemplo SQL reproducible de costo por unidad.
 
-**Estado:** caso de estudio documental de fuentes GAS y Sheets consultadas en lectura. El código operativo y sus datos no se distribuyen en este repositorio. Se publican documentación nueva y un recorrido ilustrativo con datos ficticios.
+> [!NOTE]
+> **Repositorio documental.** El código operativo y sus datos son privados. Aquí se publican documentación nueva, datos ficticios y un ejemplo SQL ejecutable.
 
-## Problema y solución
+[Probar el ejemplo](#probar-el-ejemplo) · [Caso de estudio](docs/case-study.md) · [Arquitectura](docs/architecture.md) · [Verificación y límites](docs/verification.md)
 
-Organizar registros de trabajo, catálogos y movimientos operativos para su consulta analítica, manteniendo coherencia temporal y trazabilidad.
+## Problema
 
-El GAS ligado a la hoja revisada contiene módulos de consolidación, autocompletado, depuración y registro de eventos. El solicitante reporta consultas SQL en BigQuery conectadas a Looker Studio; la definición de esas consultas no se inspeccionó.
+Los registros de trabajo, catálogos y movimientos operativos llegan por separado. Para consultarlos de forma analítica hay que consolidarlos con coherencia temporal y trazabilidad, sin duplicar importes al cruzar fuentes.
 
-## Funciones observadas en la fuente
+## Solución
 
-- Consolidación de registros de trabajo y transacciones adicionales definida en la fuente.
-- Procesamiento de fletes y referencias de catálogos.
-- Autocompletado y validación de entradas por área y actividad.
-- Depuración de duplicados y utilidades de registro de eventos.
-- Informe Looker Studio accesible; conexión BigQuery reportada por el solicitante.
+Un proyecto Google Apps Script ligado a Google Sheets separa consolidación, autocompletado y validación de entradas, depuración de duplicados y registro de eventos. Un informe Looker Studio presenta la información consolidada.
 
-## Tecnologías verificadas
+![Recorrido documental con datos ficticios: consolidación por centro y periodo](docs/images/recorrido-demo.png)
 
-Google Apps Script, Google Sheets y Looker Studio fueron observados. El solicitante confirma BigQuery y consultas SQL como parte del flujo; sus conexiones y consultas quedan pendientes de inspección. Consulte la [arquitectura](docs/architecture.md).
+*Recorrido ilustrativo con valores inventados. No es la interfaz original ni ejecuta su backend.*
 
-## Evidencia y resultados
+## Aportación personal
 
-El 5 de octubre de 2026 se abrieron la hoja y el informe facilitados y se revisaron cuatro archivos GAS con 16 definiciones de función. La compilación conjunta de la copia inspeccionada no detectó errores de sintaxis. El endpoint compartido mostró una declaración duplicada de HOJA_LOG: la correspondencia entre ese despliegue y el editor queda pendiente. No se ejecutaron consolidaciones ni escrituras remotas.
+<!-- APORTACION-PERSONAL: sustituir tras la confirmación agrupada de responsabilidades. -->
+Las responsabilidades personales específicas se publicarán después de confirmarlas. Este repositorio no atribuye autoría exclusiva del código operativo; presenta el caso, la arquitectura observada y un ejemplo reproducible.
 
-No se publican métricas de ahorro, adopción o productividad. La [verificación](docs/verification.md) explica su alcance. La aportación personal detallada y la autoría integral del código operativo no están acreditadas públicamente; este caso presenta la revisión técnica y la documentación del proyecto asociado al portafolio.
+## Pregunta analítica del ejemplo
 
-## Demostración y capturas
+> ¿Cuál es el costo por unidad de cada centro y periodo, sin duplicar costos ni producción al unir ambas fuentes?
 
-Abra [demo/index.html](demo/index.html) localmente. El recorrido funciona sin servidor, instalación ni conexión a servicios. Su tabla representa [datos sintéticos](examples/scenario.json), no una captura de la aplicación original. El botón recorre textos ilustrativos; no ejecuta operaciones de negocio.
+El [modelo SQL](examples/model.sql) responde con **SQLite** en memoria y datos ficticios. Agrega cada hecho por centro y periodo antes de unirlos:
 
-![Recorrido documental con datos ficticios](docs/images/recorrido-demo.png)
+```sql
+WITH p AS (
+    SELECT center, period, SUM(units) AS units FROM production GROUP BY center, period
+), c AS (
+    SELECT center, period, SUM(cost_cents) AS cost_cents FROM costs GROUP BY center, period
+), keys AS (
+    SELECT center, period FROM p UNION SELECT center, period FROM c
+)
+SELECT keys.center, keys.period, p.units, c.cost_cents,
+       CASE WHEN p.units > 0 AND c.cost_cents IS NOT NULL
+            THEN CAST(c.cost_cents AS REAL) / 100 / p.units
+            ELSE NULL END AS cost_per_unit
+FROM keys
+LEFT JOIN p ON p.center = keys.center AND p.period = keys.period
+LEFT JOIN c ON c.center = keys.center AND c.period = keys.period;
+```
 
-Puede verificar los datos usando Python 3: `python examples/verify.py`.
+Resultado comprobado por `examples/verify.py` para el periodo ficticio 2026-01:
 
-El [modelo SQL sintético](examples/model.sql) se ejecuta en SQLite en memoria. Comprueba agregación antes del cruce, producción cero, costos o producción ausentes y rechazo de claves repetidas. Es un ejemplo pedagógico independiente, no una exportación de BigQuery ni una réplica del modelo real.
+| Centro ficticio | Unidades | Costo | Costo por unidad | Tratamiento |
+|---|---:|---:|---:|---|
+| DEMO-CC-001 | 100 | 500.00 | 5.00 | Dos registros por fuente, sin duplicar importes |
+| DEMO-CC-002 | 0 | 125.00 | — | Producción cero: no se divide |
+| DEMO-CC-003 | 10 | — | — | Producción sin costo registrado |
+| DEMO-CC-004 | — | 10.00 | — | Costo sin producción registrada |
 
-## Caso de estudio
+El esquema también rechaza un identificador de registro repetido. Es un ejemplo pedagógico independiente: no es una exportación de BigQuery ni una réplica del modelo real.
 
-Consulte [problema, decisiones y aprendizajes](docs/case-study.md).
+## Probar el ejemplo
 
-## Seguridad y limitaciones
+Requiere Python 3 y su biblioteca estándar. Desde la raíz del repositorio:
 
-Publicación independiente sin historial operativo. No incluye credenciales, identificadores de servicios, catálogos empresariales, datos personales, archivos de respaldo ni configuración productiva. Las pruebas de la fuente se ejecutaron con simulación o temporales aislados; el recorrido público es una explicación independiente.
+```text
+python examples/verify.py
+```
 
-## Pendientes
+Para ver el recorrido, abra [demo/index.html](demo/index.html) en un navegador. Funciona sin servidor ni conexión a servicios; usa [datos sintéticos](examples/scenario.json).
 
-- Resolver la declaración duplicada de HOJA_LOG y comprobar la versión desplegada en una fase técnica.
-- Verificar consultas SQL, conexión BigQuery, linaje y definiciones de indicadores.
-- Validar consolidación, duplicados y recuperación sobre una copia con datos ficticios.
-- Acreditar modelo dimensional, latencia y resultados operativos antes de afirmarlos.
-- Confirmar responsabilidades históricas y decidir licencia.
+## Resultados comprobados
+
+- **Consolidación trazable:** la fuente revisada separa consolidación, validación, depuración de duplicados y registro de eventos (cuatro archivos GAS, 16 definiciones de función, 5 de octubre de 2026).
+- **Cruce sin duplicar importes:** el ejemplo agrega antes de unir y conserva como casos explícitos la producción cero y los datos faltantes.
+- **Informe accesible:** la hoja y el informe Looker Studio facilitados abrieron durante la revisión.
+
+No se publican métricas de ahorro, adopción o productividad.
+
+## Tecnologías
+
+| Alcance | Tecnologías |
+|---|---|
+| Observadas en la fuente | Google Apps Script, Google Sheets, Looker Studio |
+| Ejemplo público | SQL sobre SQLite, Python (biblioteca estándar) |
+| Reportada, pendiente de inspección | BigQuery y sus consultas SQL conectadas al informe |
+
+## Límites
+
+- La integración BigQuery y sus consultas no se inspeccionaron; el SQL público es un modelo SQLite independiente.
+- El endpoint compartido muestra una declaración duplicada de `HOJA_LOG`; la copia del editor pasa sintaxis y su correspondencia con el despliegue está pendiente.
+- No se ejecutaron consolidaciones ni escrituras remotas.
+
+Detalle técnico y condiciones pendientes: [verificación y límites](docs/verification.md).
 
 ## Licencia
 

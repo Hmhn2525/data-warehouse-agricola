@@ -26,3 +26,15 @@ else:
     raise AssertionError('El ejemplo debe rechazar una clave repetida')
 db.close()
 print('SQL sintético: agregación sin multiplicación, ceros, faltantes y clave repetida comprobados.')
+
+
+def show(value, cents=False):
+    if value is None:
+        return '-'
+    return f'{value / 100:.2f}' if cents else f'{value:.2f}' if isinstance(value, float) else str(value)
+
+
+print(f"{'Centro':<12} {'Periodo':<8} {'Unidades':>8} {'Costo':>8} {'Costo/u':>8}")
+for center in sorted(rows):
+    _, period, units, cost_cents, cost_per_unit = rows[center]
+    print(f'{center:<12} {period:<8} {show(units):>8} {show(cost_cents, cents=True):>8} {show(cost_per_unit):>8}')
