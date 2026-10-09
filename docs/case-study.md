@@ -2,30 +2,24 @@
 
 ## Necesidad
 
-Organizar registros de trabajo, catálogos y movimientos operativos para su consulta analítica, manteniendo coherencia temporal y trazabilidad.
+Consolidar datos de producción y costos por centro y periodo sin multiplicar importes al unir fuentes y sin confundir cero explícito con dato ausente.
 
-## Aportación documentada
+## Decisión técnica del ejemplo
 
-Este caso organiza la revisión de fuentes, pruebas sintéticas, arquitectura y límites de una solución asociada al portafolio. Se preservan las reservas sobre autoría exclusiva de todos sus componentes y componentes de terceros. Las responsabilidades personales en diseño del flujo de consolidación en Sheets, lógica de cruce de datos, modelo de indicadores y consultas analíticas para Looker Studio han sido confirmadas en el README.
+Cada fuente se agrega por centro y periodo antes del cruce. El modelo genera las 24 combinaciones de cuatro centros y seis periodos, incluso cuando falta una fuente. Claves primarias, referencias y una transacción detectan duplicados y referencias inválidas. Las huellas SHA-256 hacen idempotente la reimportación de un mismo archivo.
 
-## Decisiones observadas
+El [diccionario de datos](data-dictionary.md) fija el grano, las unidades, el costo ponderado, los faltantes y las reglas de anomalía. El comando `python examples/verify.py` carga los CSV, valida, consulta y exporta las filas que consume el [dashboard](../demo/index.html).
 
-La fuente separa consolidación, catálogos y utilidades. Este caso distingue lo inspeccionado en GAS de la integración analítica reportada. El ejemplo SQL público usa un esquema ficticio propio, sin pretender reproducir consultas empresariales.
+## Resultado verificable
 
-## Evidencia
+La salida incluye 1,768 unidades registradas, MXN 12,025.00 de costos y MXN 6.79 por unidad ponderado sobre 1,713 unidades completas. Incluye un cero explícito, una combinación sin costo, una sin producción y un costo unitario alto ficticio. No afirma métricas de productividad o ahorro.
 
-El 5 de octubre de 2026 se abrieron la hoja y el informe facilitados y se revisaron cuatro archivos GAS con 16 definiciones de función. La compilación conjunta de la copia inspeccionada no detectó errores de sintaxis. El endpoint compartido mostró una declaración duplicada de HOJA_LOG: la correspondencia entre ese despliegue y el editor queda pendiente. No se ejecutaron consolidaciones ni escrituras remotas.
+## Experiencia y evidencia
 
-El [recorrido ilustrativo](../demo/index.html) usa datos inventados y no demuestra ejecución de la aplicación original. La imagen conserva esa identificación explícita.
+La aportación descrita en README corresponde al flujo de consolidación en Google Sheets, cruce de datos, definición de indicadores y consultas analíticas para Looker Studio. Una revisión local histórica, fechada el 5 de octubre de 2026, registró cuatro archivos GAS con 16 definiciones y compilación sin errores; también dejó pendiente resolver una declaración duplicada de `HOJA_LOG` frente al endpoint.
+
+La demo web de este repositorio es nueva e independiente. No es captura ni interfaz del sistema original. Evidencia actual de la interfaz real, Looker Studio conectado, BigQuery, consultas, linaje y despliegue sigue pendiente. No se ejecutaron escrituras operativas.
 
 ## Aprendizajes
 
-Un informe accesible no certifica el linaje ni la actualización de todos sus datos. Antes de calcular costos unitarios hay que definir el grano, evitar multiplicar importes al unir hechos y conservar casos sin producción.
-
-## Próxima fase
-
-- Resolver la declaración duplicada de HOJA_LOG y comprobar la versión desplegada en una fase técnica.
-- Verificar consultas SQL, conexión BigQuery, linaje y definiciones de indicadores.
-- Validar consolidación, duplicados y recuperación sobre una copia con datos ficticios.
-- Acreditar modelo dimensional, latencia y resultados operativos antes de afirmarlos.
-- Definición de licencia en su fase técnica propia.
+Definir primero el grano evita inflar sumas. Los importes enteros en centavos evitan errores binarios. Los faltantes deben seguir nulos hasta la presentación; transformarlos en cero cambia el significado del indicador.
